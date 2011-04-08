@@ -12,6 +12,7 @@ class TaggableManager(BaseTaggableManager):
         defaults = {
             "label": _("Tags"),
             "help_text": _("A comma-separated list of tags."),
+            "required": not self.blank,
         }
         defaults.update(kwargs)
         
