@@ -15,6 +15,6 @@ class TaggableManager(BaseTaggableManager):
         }
         defaults.update(kwargs)
         
-        kwargs['widget'] = TagAutocomplete
+        defaults['widget'] = TagAutocomplete
         
-        return form_class(**kwargs)
+        return form_class(**defaults)
