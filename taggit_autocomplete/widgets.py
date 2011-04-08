@@ -19,12 +19,41 @@ class TagAutocomplete(forms.TextInput):
         js = u"""
             <script type="text/javascript">
                 (function($) {
-                    $.ready(function() {
+                    $(document).ready(function() {
                         function split( val ) {
                             return val.split( /,\s*/ );
                         }
                         function extractLast( term ) {
                             return split( term ).pop();
+                        }
+                        function onitem(event, ui) {
+                            // keep other entries for 'select'
+                            // callbacks.
+                            var terms = split( this.value );
+                            // remove the current input
+                            terms.pop();
+                            // add the selected item
+                            terms.push( ui.item.value );
+                            // add placeholder to get the comma-and-space
+                            // at the end
+                            terms.push( "" );
+                            this.value = terms.join( ", " );
+                            return false;
+                        }
+                        function noop(event, item) {
+                            // don't update for focus events.
+                            return false;
+                        }
+                        function resize(event, item) {
+                            // update the width of the textinput if we need to.
+                            var size = parseInt($(this).attr('size'));
+                            var chars = $(this).val().length;
+                            if (chars >= size) {
+                                $(this).animate({width: 1.5 * chars / size *
+                                $(this).width()}, 200);
+                                $(this).attr('size', chars);
+                            }
+                            return false;
                         }
                         // don't navigate away from the field on tab
                         // when selecting an item.
@@ -41,29 +70,9 @@ class TagAutocomplete(forms.TextInput):
                                     term: extractLast( request.term )
                                 }, response );
                             },
-                            search: function() {
-                                // custom minLength
-                                var term = extractLast( this.value );
-                                if ( term.length < 2 ) {
-                                    return false;
-                                }
-                            },
-                            focus: function() {
-                                // prevent value inserted on focus
-                                return false;
-                            },
-                            select: function( event, ui ) {
-                                var terms = split( this.value );
-                                // remove the current input
-                                terms.pop();
-                                // add the selected item
-                                terms.push( ui.item.value );
-                                // add placeholder to get the comma-and-space
-                                // at the end
-                                terms.push( "" );
-                                this.value = terms.join( ", " );
-                                return false;
-                            }
+                            select: onitem,
+                            focus: noop,
+                            close: resize
                         });
                     });
                 })(django.jQuery);
@@ -72,10 +81,8 @@ class TagAutocomplete(forms.TextInput):
         return mark_safe("\n".join([html, js]))
 
     class Media:
-        js_base_url = getattr(settings, 'TAGGIT_AUTOCOMPLETE_JS_BASE_URL',
-                              '%s/jquery-autocomplete' % settings.MEDIA_URL)
         css = {
-            'all': ('%s/jquery.autocomplete.css' % js_base_url,)
+            'all': getattr(settings, 'TAGGIT_AUTOCOMPLETE_JQUERYUI_CSS', []),
         }
         js = getattr(settings, 'TAGGIT_AUTOCOMPLETE_JQUERYUI_JS', [])
         
