@@ -18,16 +18,17 @@ class TagAutocomplete(forms.TextInput):
         # change to use new jquery-ui autocomplete
         js = u"""
             <script type="text/javascript">
-                jQuery = django.jQuery;
-                jQuery().ready(function() {
+                (function($) {
+                    $.ready(function() {
                         function split( val ) {
                             return val.split( /,\s*/ );
                         }
                         function extractLast( term ) {
                             return split( term ).pop();
                         }
-
-                        $("#%(id)s")// don't navigate away from the field on tab when selecting an item
+                        // don't navigate away from the field on tab
+                        // when selecting an item.
+                        $("#%(id)s")
 			                .bind( "keydown", function( event ) {
                             if ( event.keyCode === $.ui.keyCode.TAB &&
                                     $( this ).data( "autocomplete" ).menu.active ) {
@@ -57,14 +58,15 @@ class TagAutocomplete(forms.TextInput):
                                 terms.pop();
                                 // add the selected item
                                 terms.push( ui.item.value );
-                                // add placeholder to get the comma-and-space at the end
+                                // add placeholder to get the comma-and-space
+                                // at the end
                                 terms.push( "" );
                                 this.value = terms.join( ", " );
                                 return false;
                             }
                         });
-                    }
-                );
+                    });
+                })(django.jQuery);
             </script>
             """ % ({'id':attrs['id'], 'source':list_view})
         return mark_safe("\n".join([html, js]))
@@ -75,5 +77,5 @@ class TagAutocomplete(forms.TextInput):
         css = {
             'all': ('%s/jquery.autocomplete.css' % js_base_url,)
         }
-        js = (
-        )
+        js = getattr(settings, 'TAGGIT_AUTOCOMPLETE_JQUERYUI_JS', [])
+        
