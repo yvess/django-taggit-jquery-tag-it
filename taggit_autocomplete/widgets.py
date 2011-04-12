@@ -46,12 +46,12 @@ class TagAutocomplete(forms.TextInput):
                         }
                         function resize(event, item) {
                             // update the width of the textinput if we need to.
-                            var size = parseInt($(this).attr('size'));
+                            var size = parseInt($(this).attr('size')) - 5;
                             var chars = $(this).val().length;
-                            if (chars >= size) {
+                            if (chars >= size - 2) {
                                 $(this).animate({width: 1.5 * chars / size *
                                 $(this).width()}, 200);
-                                $(this).attr('size', chars);
+                                $(this).attr('size', chars * 1.5);
                             }
                             return false;
                         }
@@ -70,10 +70,21 @@ class TagAutocomplete(forms.TextInput):
                                     term: extractLast( request.term )
                                 }, response );
                             },
+                            create: resize,
                             select: onitem,
                             focus: noop,
                             close: resize
                         });
+
+                        item = $("#%(id)s");
+                        var size = parseInt(item.attr('size')) - 5;
+                        chars = item.val().length;
+                        if (chars >= size) {
+                            item.animate({width: 1.5 * chars / size *
+                                          item.width()}, 200);
+                            item.attr('size', chars * 1.5);
+                        };
+                            
                     });
                 })(django.jQuery);
             </script>
