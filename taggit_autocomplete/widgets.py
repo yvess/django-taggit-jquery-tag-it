@@ -1,9 +1,9 @@
 from django import forms
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from utils import edit_string_for_tags
+from taggit.utils import edit_string_for_tags
+from taggit_autocomplete import settings
 
 
 class TagAutocomplete(forms.TextInput):
@@ -15,85 +15,36 @@ class TagAutocomplete(forms.TextInput):
             value = edit_string_for_tags(
                     [o.tag for o in value.select_related("tag")])
         html = super(TagAutocomplete, self).render(name, value, attrs)
-        # change to use new jquery-ui autocomplete
+
+        # Activate tag-it in this field
         js = u"""
             <script type="text/javascript">
                 (function($) {
                     $(document).ready(function() {
-                        function split( val ) {
-                            return val.split( /,\s*/ );
-                        }
-                        function extractLast( term ) {
-                            return split( term ).pop();
-                        }
-                        function onitem(event, ui) {
-                            // keep other entries for 'select'
-                            // callbacks.
-                            var terms = split( this.value );
-                            // remove the current input
-                            terms.pop();
-                            // add the selected item
-                            terms.push( ui.item.value );
-                            // add placeholder to get the comma-and-space
-                            // at the end
-                            terms.push( "" );
-                            this.value = terms.join( ", " );
-                            return false;
-                        }
-                        function noop(event, item) {
-                            // don't update for focus events.
-                            return false;
-                        }
-                        function resize(event, item) {
-                            // update the width of the textinput if we need to.
-                            var size = parseInt($(this).attr('size')) - 5;
-                            var chars = $(this).val().length;
-                            if (chars >= size - 2) {
-                                $(this).animate({width: 1.5 * chars / size *
-                                $(this).width()}, 200);
-                                $(this).attr('size', chars * 1.5);
+                        $("#%(id)s").tagit({
+                            caseSensitive: false,
+                            tagSource: function(search, showChoices) {
+                                options = this;
+                                $.getJSON("%(source)s", {
+                                    q: search.term.toLowerCase()
+                                }, function(data) {
+                                    showChoices(options._subtractArray(data, options.assignedTags()));
+                                });
                             }
-                            return false;
-                        }
-                        // don't navigate away from the field on tab
-                        // when selecting an item.
-                        $("#%(id)s")
-			                .bind( "keydown", function( event ) {
-                            if ( event.keyCode === $.ui.keyCode.TAB &&
-                                    $( this ).data( "autocomplete" ).menu.active ) {
-                                event.preventDefault();
-                            }
-			            })
-                        .autocomplete({
-                            source: function( request, response ) {
-                                $.getJSON( "%(source)s", {
-                                    term: extractLast( request.term )
-                                }, response );
-                            },
-                            create: resize,
-                            select: onitem,
-                            focus: noop,
-                            close: resize
                         });
-
-                        item = $("#%(id)s");
-                        var size = parseInt(item.attr('size')) - 5;
-                        chars = item.val().length;
-                        if (chars >= size) {
-                            item.animate({width: 1.5 * chars / size *
-                                          item.width()}, 200);
-                            item.attr('size', chars * 1.5);
-                        };
-                            
                     });
-                })(django.jQuery);
+                })(jQuery);
             </script>
-            """ % ({'id':attrs['id'], 'source':list_view})
+            """ % ({
+                'id': attrs['id'],
+                'source': list_view
+            })
         return mark_safe("\n".join([html, js]))
 
     class Media:
-        css = {
-            'all': getattr(settings, 'TAGGIT_AUTOCOMPLETE_JQUERYUI_CSS', []),
-        }
-        js = getattr(settings, 'TAGGIT_AUTOCOMPLETE_JQUERYUI_JS', [])
+        if settings.CSS:
+            css = {
+                'all': settings.CSS,
+            }
+        js = settings.JS
         

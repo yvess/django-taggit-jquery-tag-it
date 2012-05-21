@@ -1,4 +1,3 @@
-from django.contrib.admin.widgets import AdminTextInputWidget
 from django.utils.translation import ugettext_lazy as _
 
 from taggit.forms import TagField
@@ -15,7 +14,7 @@ class TaggableManager(BaseTaggableManager):
             "required": not self.blank,
         }
         defaults.update(kwargs)
-        
+
         defaults['widget'] = TagAutocomplete
-        
+
         return form_class(**defaults)
