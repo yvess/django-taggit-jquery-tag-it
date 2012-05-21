@@ -9,7 +9,7 @@ setup(
     description='Autocompletion for django-taggit',
     long_description=long_description,
     author=u'Iván Raskovsky',
-    author_email='raskovsky@gmail.com,
+    author_email='raskovsky@gmail.com',
     url='https://github.com/rasca/django-taggit-jquery-tag-it',
     packages=find_packages(),
     classifiers=[
