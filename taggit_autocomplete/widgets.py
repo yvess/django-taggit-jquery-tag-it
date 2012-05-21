@@ -42,9 +42,8 @@ class TagAutocomplete(forms.TextInput):
         return mark_safe("\n".join([html, js]))
 
     class Media:
-        if settings.CSS:
-            css = {
-                'all': settings.CSS,
-            }
+        css = {
+            'all': settings.CSS,
+        }
         js = settings.JS
         
