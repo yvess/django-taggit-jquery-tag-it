@@ -18,3 +18,10 @@ class TaggableManager(BaseTaggableManager):
         defaults['widget'] = TagAutocomplete
 
         return form_class(**defaults)
+
+# South introspection rule
+try:
+    from south.modelsinspector import add_ignored_fields
+    add_ignored_fields(["^taggit_autocomplete\.managers"])
+except ImportError:
+    pass
