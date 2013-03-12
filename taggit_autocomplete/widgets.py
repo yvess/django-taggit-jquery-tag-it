@@ -46,4 +46,3 @@ class TagAutocomplete(forms.TextInput):
             'all': settings.CSS,
         }
         js = settings.JS
-        
