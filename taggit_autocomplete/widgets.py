@@ -23,6 +23,7 @@ class TagAutocomplete(forms.TextInput):
                     $(document).ready(function() {
                         $("#%(id)s").tagit({
                             caseSensitive: false,
+                            allowSpaces: true,
                             tagSource: function(search, showChoices) {
                                 options = this;
                                 $.getJSON("%(source)s", {

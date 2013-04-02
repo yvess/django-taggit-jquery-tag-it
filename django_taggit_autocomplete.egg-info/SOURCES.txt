@@ -1,0 +1,12 @@
+setup.py
+django_taggit_autocomplete.egg-info/PKG-INFO
+django_taggit_autocomplete.egg-info/SOURCES.txt
+django_taggit_autocomplete.egg-info/dependency_links.txt
+django_taggit_autocomplete.egg-info/not-zip-safe
+django_taggit_autocomplete.egg-info/top_level.txt
+taggit_autocomplete/__init__.py
+taggit_autocomplete/managers.py
+taggit_autocomplete/settings.py
+taggit_autocomplete/urls.py
+taggit_autocomplete/views.py
+taggit_autocomplete/widgets.py
